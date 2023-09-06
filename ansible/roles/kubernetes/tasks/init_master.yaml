@@ -1,0 +1,50 @@
+---
+- name: Register number of cpu
+  shell: cat /proc/cpuinfo |grep CPU|wc -l
+  register: numCPU
+- name: Reset latest configurations on init master with {{ container_runtime }} cri
+  shell: "kubeadm reset --force --cri-socket={{ container_runtime_schema }}/var/run/{{ container_runtime }}/{{ container_runtime }}.sock"
+  tags: reset_init_master_with_after_first_init
+- name: Init cluster with 1 cpu
+  shell: |
+    kubeadm init --apiserver-advertise-address={{ first_master_ip }} --pod-network-cidr {{ pod_network }} \
+      --control-plane-endpoint {{ control_plane_endpoint }} \
+      --cri-socket={{ container_runtime_schema }}/var/run/{{ container_runtime }}/{{ container_runtime }}.sock \
+      --upload-certs --ignore-preflight-errors=NumCPU > {{ kubeadm_init_log_dir }}/{{ kubeadm_init_log }}
+  when: numCPU.stdout == '1'
+- name: Init cluster
+  shell: "kubeadm init --apiserver-advertise-address={{ first_master_ip }} --pod-network-cidr {{ pod_network }} --control-plane-endpoint {{ control_plane_endpoint }} --cri-socket={{ container_runtime_schema }}/var/run/{{ container_runtime }}/{{ container_runtime }}.sock --upload-certs &> {{ kubeadm_init_log_dir }}/{{ kubeadm_init_log }}"
+  when: numCPU.stdout > '1'
+- name: Post init command
+  shell: |
+   mkdir -p $HOME/.kube
+   cp -f /etc/kubernetes/admin.conf $HOME/.kube/config
+   chown $(id -u):$(id -g) $HOME/.kube/config
+- name: Copy network plugin template
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+   - {src: "flannel_network.yaml.j2", dest: "{{ manifest_dir }}/flannel_network.yaml"}
+   - {src: "calico.yaml.j2", dest: "{{ manifest_dir }}/calico.yaml"}
+- name: Apply flannel network
+  shell: kubectl apply -f "{{ manifest_dir }}/flannel_network.yaml"
+  when: network_plugin.flannel == "true"
+- name: Apply calico network
+  shell: kubectl apply -f "{{ manifest_dir }}/calico.yaml"
+  when: network_plugin.calico == "true"
+- name: Copy kubernetes-dashboard manifest
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - {src: "serviceaccount.yaml", dest: "{{ manifest_dir }}/serviceaccount.yaml"}
+    - {src: "clusterrolebinding.yaml", dest: "{{ manifest_dir }}/clusterrolebinding.yaml"}
+    - {src: "secret.yaml", dest: "{{ manifest_dir }}/secret.yaml"}
+- name: Apply kubernetes dashboard
+  shell: kubectl apply -f "{{ dashboard }}"
+- name: Create service account and clusterrolebinding for kubernetes dashboard
+  shell: |
+    kubectl apply -f "{{ manifest_dir }}"/serviceaccount.yaml 
+    kubectl apply -f "{{ manifest_dir }}"/clusterrolebinding.yaml 
+    kubectl apply -f "{{ manifest_dir }}"/secret.yaml

@@ -1,0 +1,21 @@
+---
+- name: Register number of cpu
+  shell: cat /proc/cpuinfo |grep CPU|wc -l
+  register: numCPU
+- name: Reset latest configuration on join worker nodes with {{ container_runtime }} cri
+  shell: kubeadm reset --force --cri-socket=/var/run/"{{ container_runtime }}"/"{{ container_runtime }}".sock
+  tags: reset_worker
+- name: Join worker nodes with 1 cpu
+  shell: |
+    kubeadm join "{{ control_plane_endpoint }}" --token "{{ hostvars['k8s_join']['token'] }}" \
+    --discovery-token-ca-cert-hash sha256:"{{ hostvars['k8s_join']['hash'] }}" \
+    --ignore-preflight-errors=NumCPU \
+    --cri-socket=/var/run/"{{ container_runtime }}"/"{{ container_runtime }}".sock
+  when: numCPU.stdout == '1'
+- name: Join worker node
+  shell: |
+    kubeadm join "{{ control_plane_endpoint }}" --token "{{ hostvars['k8s_join']['token'] }}" \
+    --discovery-token-ca-cert-hash sha256:"{{ hostvars['k8s_join']['hash'] }}" \
+    --cri-socket=/var/run/"{{ container_runtime }}"/"{{ container_runtime }}".sock
+  when: numCPU.stdout > '1'
+    

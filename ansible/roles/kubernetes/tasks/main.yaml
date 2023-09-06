@@ -1,0 +1,36 @@
+---
+- import_tasks: pre_install.yaml
+  tags: pre_install
+- import_tasks: install_requirements.yaml
+  tags: requirements
+- import_tasks: post_install.yaml
+  tags: post_install
+- import_tasks: init_master.yaml
+  when: inventory_hostname == "{{ first_master }}"
+  tags: init_master
+- import_tasks: get_dynamic_vars.yaml
+  when: inventory_hostname == "{{ first_master }}"
+  tags: get_vars
+- import_tasks: join_master.yaml
+  when: groups['master'] is defined and inventory_hostname in groups['master']
+  tags: join_master
+- import_tasks: join_worker.yaml
+  when: groups['node'] is defined and inventory_hostname in groups['node']
+  tags: join_node
+- import_tasks: join_worker.yaml
+  when: groups['ingress'] is defined and inventory_hostname in groups['ingress']
+  tags: join_ingress
+- import_tasks: labels_node.yaml
+  when: inventory_hostname == "{{ first_master }}"
+  tags: labels_node
+- import_tasks: install_nodelocaldns.yaml
+  when: inventory_hostname == "{{ first_master }}"
+- import_tasks: deploy_test_application.yaml
+  when: inventory_hostname == "{{ first_master }}" and deploy_test_application == "yes"
+  tags: test_deploy
+- import_tasks: dashboard_token.yaml
+  when: inventory_hostname == "{{ first_master }}"
+  tags: show_token
+- import_tasks: copy_admin_config.yaml
+  when: inventory_hostname == "{{ first_master }}"
+  tags: copy_k8s_config

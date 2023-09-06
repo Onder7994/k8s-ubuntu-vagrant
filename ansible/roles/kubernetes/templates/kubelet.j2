@@ -1,0 +1,1 @@
+KUBELET_EXTRA_ARGS=--node-ip={{ ansible_eth1.ipv4.address }} --cgroup-driver=systemd --container-runtime-endpoint="unix:///var/run/{{ container_runtime }}/{{ container_runtime }}.sock"

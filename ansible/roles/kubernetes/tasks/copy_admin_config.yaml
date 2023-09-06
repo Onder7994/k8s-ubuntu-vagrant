@@ -1,0 +1,6 @@
+---
+- name: Fetch file
+  ansible.builtin.fetch:
+    src: /etc/kubernetes/admin.conf
+    dest: "{{ local_kubeconfig }}"
+    flat: yes

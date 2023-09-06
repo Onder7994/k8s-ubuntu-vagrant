@@ -1,0 +1,8 @@
+---
+- name: Disable swap
+  shell: swapoff -a
+- name: Disable swap in fstab
+  lineinfile:
+    path: /etc/fstab
+    regexp: '^/swapfile'
+    line: '# /swapfile'

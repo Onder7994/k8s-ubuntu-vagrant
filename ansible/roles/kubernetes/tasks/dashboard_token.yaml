@@ -1,0 +1,7 @@
+---
+- name: Get kubernetes dashboard token
+  shell: kubectl get secret admin-user -n kubernetes-dashboard -o jsonpath={".data.token"} | base64 -d
+  register: dashboard_token
+- name: Show kubernetes dashboard token
+  debug: 
+    msg: "Token: {{ dashboard_token.stdout }}"

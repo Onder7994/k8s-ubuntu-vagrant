@@ -1,0 +1,9 @@
+---
+- name: Create namespace "{{ test_application_ns }}"
+  shell: kubectl create ns "{{ test_application_ns }}"
+- name: Copy manifest for deploy test application
+  copy:
+    src: "sock-shop.yaml"
+    dest: "{{ manifest_dir }}/sock-shop.yaml"
+- name: Apply test application manifest
+  shell: kubectl -n "{{ test_application_ns }}" create -f "{{ manifest_dir }}/sock-shop.yaml"

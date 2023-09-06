@@ -1,0 +1,6 @@
+runtime-endpoint: "{{ container_runtime_schema }}/var/run/{{ container_runtime }}/{{ container_runtime }}.sock"
+image-endpoint: "{{ container_runtime_schema }}/var/run/{{ container_runtime }}/{{ container_runtime }}.sock"
+timeout: 0
+debug: false
+pull-image-on-create: true
+disable-pull-on-run: false

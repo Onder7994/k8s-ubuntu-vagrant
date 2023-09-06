@@ -1,0 +1,50 @@
+---
+- name: Install pre requirements packages
+  apt:
+    name:
+      - curl
+      - gnupg2
+      - software-properties-common
+      - apt-transport-https
+      - ca-certificates
+    update_cache: yes
+
+- name: Install kubernetes and docker repo key
+  apt_key:
+    url: "{{ item.url }}"
+    state: present
+  loop:
+    - {url: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"}
+    - {url: "https://download.docker.com/linux/ubuntu/gpg"}
+
+- name: Install kubernetes and docker repo
+  apt_repository:
+    repo: "{{ item.repo }}"
+    state: present
+  loop:
+    - {repo: "deb http://apt.kubernetes.io/ kubernetes-xenial main"}
+    - {repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"}
+
+- name: Install packeges
+  yum:
+    name: 
+     - containerd.io
+     - kubelet
+     - kubeadm
+     - kubernetes-cni
+     - bridge-utils
+    update_cache: yes
+
+- name: Configure containerd
+  lineinfile:
+    path: "{{ item.path }}"
+    line: "{{ item.line }}"
+    create: yes
+  loop:
+    - {path: "/etc/modules-load.d/containerd.conf", line: "overlay"}
+    - {path: "/etc/modules-load.d/containerd.conf", line: "br_netfilter"}
+
+- name: Add kernel module
+  shell: |
+    modprobe overlay
+    modprobe br_netfilter

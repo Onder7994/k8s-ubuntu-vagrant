@@ -1,0 +1,13 @@
+---
+- name: Get kubedns ClusterIP
+  shell: kubectl get svc kube-dns -n kube-system -o jsonpath={.spec.clusterIP}
+  register: kubedns
+- name: Copy nodelocaldns manifest
+  copy:
+    src: "nodelocaldns.yaml"
+    dest: "{{ manifest_dir }}/nodelocaldns.yaml"
+- name: Configure nodelocaldns manifest
+  shell: |
+    sed -i "s/__PILLAR__LOCAL__DNS__/"{{ nodelocaldns.localdns }}"/g; s/__PILLAR__DNS__DOMAIN__/"{{ nodelocaldns.domain }}"/g; s/__PILLAR__DNS__SERVER__/"{{ kubedns.stdout }}"/g" "{{ manifest_dir }}/nodelocaldns.yaml"
+- name: Apply nodelocaldns manifest
+  shell: kubectl apply -f "{{ manifest_dir }}/nodelocaldns.yaml"

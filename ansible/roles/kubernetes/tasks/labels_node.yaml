@@ -1,0 +1,10 @@
+---
+- name: Add lable to worker node
+  shell: |
+    nodes=$(kubectl get node |grep worker|grep -v -i name|awk '{print $1}')
+    kubectl label node $nodes node-role.kubernetes.io/node=
+- name: Add lable to ingress node
+  shell: |
+    nodes=$(kubectl get node |grep ingress|grep -v -i name|awk '{print $1}')
+    kubectl label node $nodes node-role.kubernetes.io/ingress=
+  when: groups['ingress'] is defined and inventory_hostname in groups['ingress']

@@ -1,0 +1,18 @@
+first_master: "k8s-master"
+first_master_ip: "192.168.10.27"
+pod_network: "10.244.0.0/16"
+control_plane_endpoint: "192.168.10.27:6443"
+kubeadm_init_log_dir: "/var/log"
+kubeadm_init_log: "kubeadm_init.log"
+dashboard: "https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml"
+deploy_test_application: "no"
+test_application_ns: "sock-shop"
+manifest_dir: "/tmp"
+local_kubeconfig: "/srv/local_k8s.conf"
+nodelocaldns:
+  domain: "cluster.local"
+  localdns: "169.254.25.10"
+network_plugin:
+  calico: "false"
+  flannel: "true"
+flannel_interface: "eth1"

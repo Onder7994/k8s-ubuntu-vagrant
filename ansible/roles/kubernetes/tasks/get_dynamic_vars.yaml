@@ -1,0 +1,25 @@
+---
+- name: Get token
+  shell: kubeadm token list |grep bootstrap|awk '{print $1}'
+  register: token
+- name: Create new token
+  shell: kubeadm token create --ttl=0
+  when: token | length < 0
+- name: Get new token
+  shell: kubeadm token list |grep bootstrap|awk '{print $1}'
+  register: token
+  when: token | length > 0
+- name: Get sha hash
+  shell: |
+     openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
+  register: hash
+- name: Get certificate key ID
+  shell: |
+    cat {{ kubeadm_init_log_dir }}/{{ kubeadm_init_log }} |grep "certificate key" -A1|tail -n1
+  register: certificate
+- name: Add token, hash and certificate vars
+  add_host:
+    name:   "k8s_join"
+    token:  "{{ token.stdout }}"
+    hash:   "{{ hash.stdout }}"
+    certificate: "{{ certificate.stdout }}"
