@@ -7,7 +7,6 @@ kubernetes:
           ansible_port: 2222
           ansible_user: vagrant
           ansible_ssh_private_key_file: /srv/vagrant/k8s/.vagrant/machines/k8s-master/virtualbox/private_key
-          ansible_ssh_common_args: '-o StrictHostKeyChecking=no'  
     master:
       hosts: {}  
     node:
@@ -16,14 +15,12 @@ kubernetes:
           ansible_host: 127.0.0.1
           ansible_port: 2223
           ansible_user: vagrant
-          ansible_ssh_private_key_file: /srv/vagrant/k8s/.vagrant/machines/k8s-worker1/virtualbox/private_key
-          ansible_ssh_common_args: '-o StrictHostKeyChecking=no'  
+          ansible_ssh_private_key_file: /srv/vagrant/k8s/.vagrant/machines/k8s-worker1/virtualbox/private_key  
         k8s-worker2:
           ansible_host: 127.0.0.1
           ansible_port: 2224
           ansible_user: vagrant
-          ansible_ssh_private_key_file: /srv/vagrant/k8s/.vagrant/machines/k8s-worker2/virtualbox/private_key
-          ansible_ssh_common_args: '-o StrictHostKeyChecking=no'  
+          ansible_ssh_private_key_file: /srv/vagrant/k8s/.vagrant/machines/k8s-worker2/virtualbox/private_key 
     ingress:
       hosts:
         k8s-ingress1:
@@ -31,4 +28,3 @@ kubernetes:
           ansible_port: 2226
           ansible_user: vagrant
           ansible_ssh_private_key_file: /srv/vagrant/k8s/.vagrant/machines/k8s-ingress1/virtualbox/private_key
-          ansible_ssh_common_args: '-o StrictHostKeyChecking=no' 

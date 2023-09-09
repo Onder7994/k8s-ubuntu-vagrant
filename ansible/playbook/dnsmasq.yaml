@@ -1,0 +1,5 @@
+- name: Install dnsmasql for local env
+  become: yes
+  hosts: localhost
+  roles:
+    - dnsmasq

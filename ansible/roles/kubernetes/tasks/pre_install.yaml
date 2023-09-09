@@ -4,5 +4,8 @@
 - name: Disable swap in fstab
   lineinfile:
     path: /etc/fstab
-    regexp: '^/swapfile'
-    line: '# /swapfile'
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop:
+    - {regexp: "^/swapfile", line: "# /swapfile"}
+    - {regexp: "^/swap.img", line: "# /swap.img"}

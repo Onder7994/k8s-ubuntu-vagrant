@@ -2,7 +2,8 @@ servers=[
   {:hostname => "k8s-master",:ip => "192.168.10.27",:ssh_port => 2222},
   {:hostname => "k8s-worker1",:ip => "192.168.10.26",:ssh_port => 2223},
   {:hostname => "k8s-worker2",:ip => "192.168.10.25",:ssh_port => 2224},
-  {:hostname => "k8s-ingress1",:ip => "192.168.10.24",:ssh_port => 2226}
+  {:hostname => "k8s-ingress1",:ip => "192.168.10.24",:ssh_port => 2226},
+  {:hostname => "dnsmasq",:ip => "192.168.10.100",:ssh_port => 2227}
 ]
 
 #last_vm = servers[(servers.length) -1][:hostname]
@@ -27,6 +28,13 @@ Vagrant.configure("2") do |config|
       if machine[:hostname] == "k8s-master"
         node.vm.provider "virtualbox" do |vb|
           vb.memory = 2048
+        end
+      end
+
+      if machine[:hostname] == "dnsmasq"
+        node.vm.provision "ansible_local" do |ansible|
+          ansible.playbook = "ansible/playbook/dnsmasq.yaml"
+          ansible.limit = "all,localhost"
         end
       end
     end

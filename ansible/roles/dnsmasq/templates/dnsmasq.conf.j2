@@ -1,0 +1,11 @@
+port={{ dns_port }}
+domain-needed
+bogus-priv
+listen-address={{ listen_address }}
+expand-hosts
+domain={{ local_domain }}
+cache-size={{ cache_size }}
+### dns resolver ###
+{% for host in local_domain_list %}
+{{ host }}
+{% endfor %}
