@@ -1,2 +1,3 @@
 container_runtime: "containerd" 
 container_runtime_schema: "unix://"
+k8s_version: "v1.29"
